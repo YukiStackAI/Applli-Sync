@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AppliSync — AI-Powered Job Application Tracker</title>
+    <meta name="description" content="Track, analyze, and optimize your job applications in real-time with AppliSync. AI-powered insights, automatic capture, and enterprise-grade analytics.">
+    <meta name="keywords" content="job tracker, application tracking, AI job search, career management, AppliSync">
+    <meta name="author" content="AppliSync">
+    <meta property="og:title" content="AppliSync — AI-Powered Job Application Tracker">
+    <meta property="og:description" content="Track, analyze, and optimize your job applications in real-time.">
+    <meta property="og:type" content="website">
+    <meta name="theme-color" content="#f97316">
+    <link rel="icon" type="image/png" href="dashboard/assest/work.gif">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, GithubAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
+
+        import firebaseConfig from "./js/firebase-config.js";
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const googleProvider = new GoogleAuthProvider();
+        const githubProvider = new GithubAuthProvider();
+
+        // Auth State Listener
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                window.location.href = 'dashboard/index.html';
+            }
+        });
+
+        // Email Sign Up
+        window.emailSignUp = async () => {
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+            const name = document.getElementById('signupName').value;
+            const errorEl = document.getElementById('authError');
+            errorEl.classList.add('hidden');
+
+            if (!name || !email || !password) {
+                errorEl.textContent = 'Please fill in all fields.';
+                errorEl.classList.remove('hidden');
+                return;
+            }
+            if (password.length < 6) {
+                errorEl.textContent = 'Password must be at least 6 characters.';
+                errorEl.classList.remove('hidden');
+                return;
+            }
+
+            try {
+                await createUserWithEmailAndPassword(auth, email, password);
+            } catch (err) {
+                errorEl.textContent = err.message.replace('Firebase: ', '').replace(/\(auth\/.*\)/, '');
+                errorEl.classList.remove('hidden');
+            }
+        };
+
+        // Email Sign In
+        window.emailSignIn = async () => {
+            const email = document.getElementById('signinEmail').value;
+            const password = document.getElementById('signinPassword').value;
+            const errorEl = document.getElementById('authError');
+            errorEl.classList.add('hidden');
+
+            if (!email || !password) {
+                errorEl.textContent = 'Please fill in all fields.';
+                errorEl.classList.remove('hidden');
+                return;
+            }
+
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+            } catch (err) {
+                errorEl.textContent = err.message.replace('Firebase: ', '').replace(/\(auth\/.*\)/, '');
+                errorEl.classList.remove('hidden');
+            }
+        };
+
+        // Google Sign In
+        window.googleSignIn = async () => {
+            try {
+                await signInWithPopup(auth, googleProvider);
+            } catch (err) {
+                const errorEl = document.getElementById('authError');
+                errorEl.textContent = err.message.replace('Firebase: ', '').replace(/\(auth\/.*\)/, '');
+                errorEl.classList.remove('hidden');
+            }
+        };
+
+        // GitHub Sign In
+        window.githubSignIn = async () => {
+            try {
+                await signInWithPopup(auth, githubProvider);
+            } catch (err) {
+                const errorEl = document.getElementById('authError');
+                errorEl.textContent = err.message.replace('Firebase: ', '').replace(/\(auth\/.*\)/, '');
+                errorEl.classList.remove('hidden');
+            }
+        };
+    </script>
+
+    <style>
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-card: rgba(255, 255, 255, 0.7);
+            --bg-card-hover: rgba(255, 255, 255, 0.9);
+            --border: rgba(15, 23, 42, 0.08);
+            --border-light: rgba(15, 23, 42, 0.04);
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            --accent: #6366f1;
+            --accent-light: #818cf8;
+            --accent-dark: #4f46e5;
+            --accent-glow: rgba(99, 102, 241, 0.2);
+            --gradient-accent: linear-gradient(135deg, #6366f1, #4f46e5);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 24px;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+
+        .dark-mode {
+            --bg-primary: #020617;
+            --bg-secondary: #0f172a;
+            --bg-card: rgba(30, 41, 59, 0.6);
+            --bg-card-hover: rgba(30, 41, 59, 0.8);
+            --border: rgba(255, 255, 255, 0.06);
+            --border-light: rgba(255, 255, 255, 0.03);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #475569;
+            --accent: #818cf8;
+            --accent-light: #a5b4fc;
+            --accent-dark: #6366f1;
+            --accent-glow: rgba(129, 140, 248, 0.25);
+            --gradient-accent: linear-gradient(135deg, #818cf8, #6366f1);
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html { scroll-behavior: smooth; }
+
+        /* ─── Scroll Progress Bar ─── */
+        #scroll-progress {
+            position: fixed; top: 0; left: 0; height: 3px;
+            background: var(--gradient-accent);
+            z-index: 1000; width: 0%; transition: width 0.1s;
+        }
+
+        /* ─── Animations ─── */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        @keyframes glowPulse {
+            0%, 100% { box-shadow: 0 8px 24px var(--accent-glow); }
+            50% { box-shadow: 0 12px 36px rgba(99, 102, 241, 0.4); }
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+            transition: background 0.5s cubic-bezier(0.4, 0, 0.2, 1), color 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .hidden { display: none !important; }
+
+        a { color: inherit; text-decoration: none; }
+
+        /* ─── Navbar ─── */
+        .navbar {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .dark-mode .navbar { background: rgba(2, 6, 23, 0.7); }
+
+        .navbar.scrolled {
+            height: 64px;
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: var(--shadow-md);
+        }
+        .dark-mode .navbar.scrolled { background: rgba(2, 6, 23, 0.9); }
+
+        .navbar-inner {
+            max-width: 1280px; margin: 0 auto;
+            padding: 0 2rem;
+            display: flex; align-items: center; justify-content: space-between;
+            height: 80px;
+            transition: height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .navbar.scrolled .navbar-inner { height: 64px; }
+
+        .logo {
+            display: flex; align-items: center; gap: 10px;
+            font-size: 1.5rem; font-weight: 800; letter-spacing: -0.5px;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .logo:hover { transform: scale(1.05); }
+        .logo img { width: 32px; height: 32px; border-radius: 8px; object-fit: cover; }
+        .logo span { color: var(--accent); }
+
+        .nav-links { display: flex; align-items: center; gap: 2.5rem; }
+        .nav-links a {
+            font-size: 0.9rem; font-weight: 500; color: var(--text-secondary);
+            position: relative; transition: color 0.3s;
+        }
+        .nav-links a:hover { color: var(--text-primary); }
+        .nav-links a::after {
+            content: ''; position: absolute; bottom: -4px; left: 0; width: 0; height: 2px;
+            background: var(--gradient-accent); transition: width 0.3s ease;
+        }
+        .nav-links a:hover::after { width: 100%; }
+
+        .nav-cta { display: flex; align-items: center; gap: 1rem; }
+
+        .theme-toggle {
+            padding: 10px; border-radius: var(--radius-sm); border: 1px solid var(--border);
+            background: var(--bg-card); cursor: pointer; color: var(--text-secondary);
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.3s;
+        }
+        .theme-toggle:hover { border-color: var(--accent); color: var(--accent); transform: rotate(15deg); }
+
+        .btn-ghost {
+            padding: 10px 20px; border-radius: var(--radius-sm);
+            font-size: 0.9rem; font-weight: 600; color: var(--text-secondary);
+            border: 1px solid var(--border);
+            background: transparent; cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .btn-ghost:hover { color: var(--text-primary); border-color: var(--text-primary); background: var(--border-light); }
+
+        .btn-primary {
+            padding: 10px 24px; border-radius: var(--radius-sm);
+            font-size: 0.9rem; font-weight: 600; color: #fff;
+            background: var(--gradient-accent);
+            border: none; cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow-md);
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 20px var(--accent-glow); }
+
+        .btn-primary-lg {
+            padding: 16px 40px; border-radius: var(--radius-md);
+            font-size: 1.1rem; font-weight: 700; color: #fff;
+            background: var(--gradient-accent);
+            border: none; cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 10px 30px var(--accent-glow);
+            animation: glowPulse 4s infinite;
+            position: relative; overflow: hidden;
+        }
+        .btn-primary-lg:hover { transform: translateY(-4px) scale(1.02); box-shadow: 0 20px 40px var(--accent-glow); }
+
+        /* ─── Hero ─── */
+        .hero {
+            min-height: 100vh;
+            display: flex; align-items: center; justify-content: center;
+            text-align: center;
+            padding: 120px 2rem 80px;
+            position: relative;
+            background: radial-gradient(circle at 70% 30%, rgba(99, 102, 241, 0.08), transparent 40%),
+                        radial-gradient(circle at 30% 70%, rgba(79, 70, 229, 0.05), transparent 40%);
+        }
+        .dark-mode .hero {
+            background: radial-gradient(circle at 70% 30%, rgba(99, 102, 241, 0.15), transparent 50%),
+                        radial-gradient(circle at 30% 70%, rgba(79, 70, 229, 0.1), transparent 50%);
+        }
+
+        .orb {
+            position: absolute; border-radius: 50%; pointer-events: none; z-index: 0;
+            filter: blur(80px); opacity: 0.5; transition: opacity 0.5s;
+        }
+        .orb-1 { width: 500px; height: 500px; top: -100px; right: -100px; background: radial-gradient(circle, var(--accent-light), transparent 70%); animation: float 15s ease-in-out infinite; }
+        .orb-2 { width: 400px; height: 400px; bottom: -100px; left: -100px; background: radial-gradient(circle, var(--accent-dark), transparent 70%); animation: float 12s ease-in-out infinite reverse; }
+
+        .hero-content { position: relative; z-index: 1; }
+        .hero-badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 8px 20px; border-radius: 100px;
+            background: var(--bg-card); border: 1px solid var(--border);
+            font-size: 0.85rem; font-weight: 700; color: var(--accent-dark);
+            margin-bottom: 2.5rem;
+            box-shadow: var(--shadow-sm);
+        }
+        .dark-mode .hero-badge { color: var(--accent-light); }
+
+        .hero h1 {
+            font-size: clamp(3rem, 8vw, 5rem);
+            font-weight: 900; line-height: 1; letter-spacing: -3px;
+            margin-bottom: 2rem; color: var(--text-primary);
+        }
+        .hero h1 .accent {
+            background: var(--gradient-accent);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+
+        .hero-sub {
+            font-size: 1.25rem; color: var(--text-secondary);
+            max-width: 650px; margin: 0 auto 3.5rem;
+            line-height: 1.8;
+        }
+
+        .hero-actions { display: flex; align-items: center; justify-content: center; gap: 1.5rem; flex-wrap: wrap; }
+
+        /* ─── Stats Bar ─── */
+        .stats-bar {
+            padding: 4rem 2rem;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+        .stats-inner {
+            max-width: 1200px; margin: 0 auto;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 3rem;
+            text-align: center;
+        }
+        .stat-item h3 {
+            font-size: 3rem; font-weight: 900; color: var(--text-primary);
+            letter-spacing: -2px; margin-bottom: 0.5rem;
+            background: var(--gradient-accent);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .stat-item p { font-size: 0.9rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 2px; }
+
+        /* ─── Features ─── */
+        .features { padding: 120px 2rem; max-width: 1280px; margin: 0 auto; }
+        .section-label {
+            display: inline-flex; align-items: center; gap: 12px;
+            font-size: 0.85rem; font-weight: 800; color: var(--accent);
+            text-transform: uppercase; letter-spacing: 3px; margin-bottom: 1.5rem;
+        }
+        .section-label::before { content: ''; width: 40px; height: 2px; background: var(--accent); }
+        .section-title { font-size: clamp(2.5rem, 5vw, 3.5rem); font-weight: 900; letter-spacing: -2px; margin-bottom: 1.5rem; color: var(--text-primary); line-height: 1.1; }
+        .section-desc { font-size: 1.2rem; color: var(--text-secondary); max-width: 600px; margin-bottom: 5rem; }
+
+        .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem; }
+        .feature-card {
+            padding: 3rem 2.5rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            display: flex; flex-direction: column; gap: 1.5rem;
+        }
+        .feature-card:hover {
+            transform: translateY(-12px); border-color: var(--accent);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        .dark-mode .feature-card:hover { box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4); }
+
+        .feature-icon {
+            width: 56px; height: 56px; border-radius: 16px; background: var(--accent-glow);
+            display: flex; align-items: center; justify-content: center; color: var(--accent);
+            transition: transform 0.3s;
+        }
+        .feature-card:hover .feature-icon { transform: scale(1.1) rotate(5deg); }
+
+        .feature-card h3 { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.5px; }
+        .feature-card p { font-size: 1rem; color: var(--text-secondary); line-height: 1.7; }
+
+        /* ─── How It Works ─── */
+        .how-it-works { padding: 120px 2rem; background: var(--bg-secondary); }
+        .how-inner { max-width: 1280px; margin: 0 auto; }
+        .steps-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 3rem; margin-top: 5rem; }
+        .step-card { position: relative; }
+        .step-number {
+            font-size: 5rem; font-weight: 900; color: var(--border);
+            position: absolute; top: -40px; left: -10px; z-index: 0;
+            line-height: 1; transition: color 0.3s;
+        }
+        .step-card:hover .step-number { color: var(--accent-glow); }
+        .step-content { position: relative; z-index: 1; padding-top: 2rem; }
+        .step-content h3 { font-size: 1.5rem; font-weight: 800; margin-bottom: 1rem; }
+        .step-content p { font-size: 1rem; color: var(--text-secondary); line-height: 1.7; }
+
+        /* ─── Testimonials ─── */
+        .testimonials { padding: 120px 2rem; max-width: 1280px; margin: 0 auto; }
+        .testimonials-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 2.5rem; margin-top: 5rem; }
+        .testimonial-card {
+            padding: 3.5rem 3rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg);
+            backdrop-filter: blur(10px);
+        }
+        .testimonial-card p { font-size: 1.15rem; color: var(--text-secondary); line-height: 1.8; margin-bottom: 2.5rem; font-style: italic; }
+        .testimonial-author { display: flex; align-items: center; gap: 16px; }
+        .author-avatar { width: 56px; height: 56px; border-radius: 50%; border: 2px solid var(--accent); }
+        .author-info h4 { font-size: 1rem; font-weight: 800; color: var(--text-primary); }
+        .author-info span { font-size: 0.9rem; color: var(--text-muted); }
+
+        /* ─── CTA ─── */
+        .cta-section {
+            padding: 140px 2rem; text-align: center;
+            background: var(--gradient-accent); color: #fff;
+            position: relative; overflow: hidden;
+        }
+        .cta-section::before {
+            content: ''; position: absolute; inset: 0;
+            background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.1), transparent 70%);
+        }
+        .cta-section h2 { font-size: clamp(2.5rem, 6vw, 4rem); font-weight: 900; letter-spacing: -3px; margin-bottom: 2rem; position: relative; }
+        .cta-section p { font-size: 1.25rem; opacity: 0.9; margin-bottom: 4rem; max-width: 700px; margin-inline: auto; position: relative; }
+        .cta-section .btn-primary-lg { background: #fff; color: var(--accent-dark); box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
+        .cta-section .btn-primary-lg:hover { background: #f8fafc; }
+
+        /* ─── Footer ─── */
+        .footer { padding: 100px 2rem 50px; background: var(--bg-secondary); border-top: 1px solid var(--border); }
+        .footer-inner { max-width: 1280px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 4rem; }
+        .footer-brand p { font-size: 1rem; color: var(--text-secondary); margin-top: 1.5rem; line-height: 1.7; }
+        .footer-col h4 { font-size: 0.9rem; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; color: var(--text-primary); margin-bottom: 2rem; }
+        .footer-col a { display: block; font-size: 1rem; color: var(--text-secondary); margin-bottom: 1rem; transition: all 0.3s; }
+        .footer-col a:hover { color: var(--accent); transform: translateX(5px); }
+
+        .footer-bottom {
+            max-width: 1280px; margin: 5rem auto 0; padding-top: 2.5rem; border-top: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 2rem;
+            font-size: 0.9rem; color: var(--text-muted);
+        }
+
+        /* ─── Auth Modal ─── */
+        .modal-overlay {
+            position: fixed; inset: 0; z-index: 2000;
+            background: rgba(2, 6, 23, 0.5); backdrop-filter: blur(10px);
+            display: none; align-items: center; justify-content: center; opacity: 0; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .modal-overlay.active { display: flex; opacity: 1; }
+        .auth-modal {
+            width: 100%; max-width: 480px; background: var(--bg-primary); border: 1px solid var(--border); border-radius: var(--radius-lg);
+            padding: 3.5rem; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); position: relative;
+            transform: translateY(20px); transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .modal-overlay.active .auth-modal { transform: translateY(0); }
+
+        .modal-close { position: absolute; top: 1.5rem; right: 1.5rem; background: none; border: none; font-size: 2rem; color: var(--text-muted); cursor: pointer; transition: color 0.3s; line-height: 1; }
+        .modal-close:hover { color: var(--text-primary); }
+
+        .auth-modal h2 { font-size: 2rem; font-weight: 900; letter-spacing: -1px; margin-bottom: 0.75rem; }
+        .auth-modal .subtitle { font-size: 1rem; color: var(--text-secondary); margin-bottom: 2.5rem; }
+
+        .auth-input {
+            width: 100%; padding: 16px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--radius-sm);
+            color: var(--text-primary); font-size: 1rem; margin-bottom: 1rem; outline: none; transition: all 0.3s;
+        }
+        .auth-input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-glow); }
+
+        .auth-submit { width: 100%; padding: 16px; background: var(--gradient-accent); border: none; border-radius: var(--radius-sm); color: #fff; font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: all 0.3s; margin-top: 1.5rem; }
+        .auth-submit:hover { transform: translateY(-2px); box-shadow: 0 10px 20px var(--accent-glow); }
+
+        .auth-divider { display: flex; align-items: center; gap: 1rem; margin: 2rem 0; color: var(--text-muted); font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+        .auth-divider::before, .auth-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+        .social-btns { display: flex; flex-direction: column; gap: 1rem; }
+        .social-btn { width: 100%; padding: 14px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--bg-primary); color: var(--text-primary); font-size: 1rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 12px; transition: all 0.3s; }
+        .social-btn:hover { background: var(--bg-secondary); border-color: var(--text-primary); }
+
+        .auth-switch { text-align: center; margin-top: 2.5rem; font-size: 1rem; color: var(--text-secondary); }
+        .auth-switch a { color: var(--accent); font-weight: 800; cursor: pointer; }
+
+        .fade-up { opacity: 0; transform: translateY(40px); transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+        .fade-up.visible { opacity: 1; transform: translateY(0); }
+
+        @media (max-width: 768px) {
+            .navbar-inner { padding: 0 1rem; }
+            .nav-links { display: none; }
+            .hero { padding-top: 100px; }
+            .stats-inner { grid-template-columns: 1fr 1fr; gap: 2rem; }
+            .auth-modal { padding: 2rem; }
+        }
+    </style>
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('applisync_theme');
+            if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark-mode');
+            }
+        })();
+        window.addEventListener('scroll', () => {
+            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrollBar = document.getElementById('scroll-progress');
+            if (scrollBar) scrollBar.style.width = (winScroll / height) * 100 + "%";
+        });
+    </script>
+</head>
+<body>
+    <div id="scroll-progress"></div>
+
+    <!-- ═══ Navbar ═══ -->
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <a href="index.html" class="logo">
+                <img src="dashboard/assest/work.gif" alt="AppliSync">
+                Appli<span>Sync</span>
+            </a>
+            <div class="nav-links">
+                <a href="#features">Features</a>
+                <a href="#how-it-works">How It Works</a>
+                <a href="#testimonials">Testimonials</a>
+                <a href="careers.html">Careers</a>
+                <a href="job-board.html">Job-Board</a>
+            </div>
+            <div class="nav-cta">
+                <button class="theme-toggle" onclick="toggleDarkMode()" aria-label="Toggle Theme">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                </button>
+                <button class="btn-ghost" onclick="openAuth('signin')">Sign In</button>
+                <button class="btn-primary" onclick="openAuth('signup')">Get Started</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ═══ Hero ═══ -->
+    <section class="hero">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="hero-content">
+            <div class="hero-badge">
+                <span class="sparkle">✨</span> Now in Public Beta
+            </div>
+            <h1 class="hero-shimmer">Track Every Application.<br>Land Your <span class="accent">Dream Job</span>.</h1>
+            <p class="hero-sub">
+                AppliSync captures, organizes, and analyzes your job applications in real-time.
+                AI-powered insights help you optimize your strategy and close offers faster.
+            </p>
+            <div class="hero-actions">
+                <button class="btn-primary-lg ripple-btn" onclick="openAuth('signup')">Start Free — No Card Needed</button>
+                <button class="btn-ghost" onclick="document.getElementById('features').scrollIntoView({behavior:'smooth'})">
+                    See Features ↓
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ Stats Bar ═══ -->
+    <section class="stats-bar">
+        <div class="stats-inner">
+            <div class="stat-item fade-up"><h3>12K+</h3><p>Applications Tracked</p></div>
+            <div class="stat-item fade-up"><h3>3.2K</h3><p>Active Users</p></div>
+            <div class="stat-item fade-up"><h3>98%</h3><p>Uptime Guarantee</p></div>
+            <div class="stat-item fade-up"><h3>5+</h3><p>Platforms Supported</p></div>
+        </div>
+    </section>
+
+    <!-- ═══ Features ═══ -->
+    <section class="features" id="features">
+        <div class="section-label">Platform Capabilities</div>
+        <h2 class="section-title">Everything You Need to<br>Manage Your Job Search</h2>
+        <p class="section-desc">From automatic tracking to deep analytics — AppliSync gives you full visibility into your career pipeline.</p>
+
+        <div class="features-grid">
+            <div class="feature-card fade-up">
+                <div class="feature-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
+                </div>
+                <h3>Real-Time Sync</h3>
+                <p>Automatically captures job applications from LinkedIn, Naukri, Indeed, and more via a lightweight Chrome extension.</p>
+            </div>
+            <div class="feature-card fade-up">
+                <div class="feature-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                </div>
+                <h3>Pipeline Analytics</h3>
+                <p>Interactive charts break down your funnel — applied, waiting, ongoing, accepted, and rejected — all at a glance.</p>
+            </div>
+            <div class="feature-card fade-up">
+                <div class="feature-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+                </div>
+                <h3>Smart Filters</h3>
+                <p>Filter by role, platform, status, location, date, and salary. Instantly drill into the data that matters to you.</p>
+            </div>
+            <div class="feature-card fade-up">
+                <div class="feature-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                </div>
+                <h3>Status Tracking</h3>
+                <p>Update application statuses in real-time. Track which companies have responded and which are still pending.</p>
+            </div>
+            <div class="feature-card fade-up">
+                <div class="feature-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19a3.5 3.5 0 0 0 0-7h-1.5c0-4.42-3.58-8-8-8s-8 3.58-8 8 3.58 8 8 8h1.5a3.5 3.5 0 0 0 0 7c4.42 0 8-3.58 8-8s-3.58-8-8-8"/></svg>
+                </div>
+                <h3>Cloud-First Storage</h3>
+                <p>All your data lives securely in Firebase Cloud. Access your dashboard from any device, anywhere, anytime.</p>
+            </div>
+            <div class="feature-card fade-up">
+                <div class="feature-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                </div>
+                <h3>Dark Mode</h3>
+                <p>A premium dark interface that's easy on the eyes during those late-night job search sessions.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ How It Works ═══ -->
+    <section class="how-it-works" id="how-it-works">
+        <div class="how-inner">
+            <div class="section-label">Getting Started</div>
+            <h2 class="section-title">Up and Running in 3 Steps</h2>
+            <p class="section-desc">No complex setup. No learning curve. Just results.</p>
+
+            <div class="steps-grid">
+                <div class="step-card fade-up">
+                    <div class="step-number">01</div>
+                    <div class="step-content">
+                        <h3>Create Your Account</h3>
+                        <p>Sign up with Email, Google, or GitHub in under 30 seconds. No credit card required to get started.</p>
+                    </div>
+                </div>
+                <div class="step-card fade-up">
+                    <div class="step-number">02</div>
+                    <div class="step-content">
+                        <h3>Install the Extension</h3>
+                        <p>Add the AppliSync Chrome extension. It automatically detects when you apply to jobs and captures the data.</p>
+                    </div>
+                </div>
+                <div class="step-card fade-up">
+                    <div class="step-number">03</div>
+                    <div class="step-content">
+                        <h3>Track & Optimize</h3>
+                        <p>Open your Intelligence Command dashboard to view analytics, filter data, and optimize your strategy.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ Testimonials ═══ -->
+    <section class="testimonials" id="testimonials">
+        <div class="section-label">What Users Say</div>
+        <h2 class="section-title">Loved by Job Seekers<br>Worldwide</h2>
+
+        <div class="testimonials-grid">
+            <div class="testimonial-card fade-up">
+                <p>"AppliSync completely changed how I manage my job search. I went from losing track of 50+ applications to having total clarity on every single one."</p>
+                <div class="testimonial-author">
+                    <div class="author-avatar">RK</div>
+                    <div class="author-info">
+                        <h4>Rahul Kumar</h4>
+                        <span>Software Engineer at Google</span>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial-card fade-up">
+                <p>"The real-time analytics showed me which platforms were actually getting me interviews. I stopped wasting time on low-conversion sources."</p>
+                <div class="testimonial-author">
+                    <div class="author-avatar" style="background: var(--accent-light)">PS</div>
+                    <div class="author-info">
+                        <h4>Priya Sharma</h4>
+                        <span>Product Manager at Microsoft</span>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial-card fade-up">
+                <p>"From applying to getting an offer — I tracked everything in AppliSync. The pipeline funnel view is genius. Highly recommend for serious job seekers."</p>
+                <div class="testimonial-author">
+                    <div class="author-avatar" style="background: var(--accent-dark)">AJ</div>
+                    <div class="author-info">
+                        <h4>Arjun Joshi</h4>
+                        <span>Data Analyst at Amazon</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ CTA ═══ -->
+    <section class="cta-section">
+        <h2>Ready to Take Control of Your <span style="color: var(--accent)">Job Search</span>?</h2>
+        <p>Join thousands of professionals already using AppliSync to land their dream roles.</p>
+        <button class="btn-primary-lg ripple-btn" onclick="openAuth('signup')">Get Started Free →</button>
+    </section>
+
+    <!-- ═══ Footer ═══ -->
+    <footer class="footer">
+        <div class="footer-inner">
+            <div class="footer-brand">
+                <a href="index.html" class="logo">
+                    <img src="dashboard/assest/work.gif" alt="AppliSync">
+                    Appli<span>Sync</span>
+                </a>
+                <p>Track, analyze, and optimize your job applications with AI-powered intelligence. No coding required — just apply and discover.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Product</h4>
+                <a href="#features">Features</a>
+                <a href="careers.html">Careers</a>
+                <a href="job-board.html">Job-Board</a>
+                <a href="#how-it-works">How It Works</a>
+            </div>
+            <div class="footer-col">
+                <h4>Support</h4>
+                <a href="contact.html">Contact</a>
+                <a href="faq.html">FAQ</a>
+            </div>
+            <div class="footer-col">
+                <h4>Legal</h4>
+                <a href="privacy-policy.html">Privacy Policy</a>
+                <a href="terms.html">Terms of Service</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <span>© 2026 AppliSync. All rights reserved.</span>
+            <div style="display: flex; gap: 20px;">
+                <a href="#">Twitter</a>
+                <a href="#">LinkedIn</a>
+                <a href="#">GitHub</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ═══ Auth Modal ═══ -->
+    <div class="modal-overlay" id="authModal">
+        <div class="auth-modal">
+            <button class="modal-close" onclick="closeAuth()">×</button>
+            <div id="authError" class="auth-error hidden"></div>
+
+            <!-- Sign Up Tab -->
+            <div id="tab-signup" class="auth-tab active">
+                <h2>Create Account</h2>
+                <p class="subtitle">Start tracking your applications in seconds.</p>
+                <div class="social-btns">
+                    <button class="social-btn" onclick="googleSignIn()">
+                        <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                        Continue with Google
+                    </button>
+                    <button class="social-btn" onclick="githubSignIn()">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
+                        Continue with GitHub
+                    </button>
+                </div>
+                <div class="auth-divider">or sign up with email</div>
+                <input type="text" id="signupName" class="auth-input" placeholder="Full name">
+                <input type="email" id="signupEmail" class="auth-input" placeholder="Email address">
+                <input type="password" id="signupPassword" class="auth-input" placeholder="Create password (6+ characters)">
+                <button class="auth-submit ripple-btn" onclick="emailSignUp()">Create Account</button>
+                <div class="auth-switch">Already have an account? <a onclick="switchAuthTab('signin')">Sign in</a></div>
+            </div>
+
+            <!-- Sign In Tab -->
+            <div id="tab-signin" class="auth-tab">
+                <h2>Welcome Back</h2>
+                <p class="subtitle">Sign in to your AppliSync dashboard.</p>
+                <div class="social-btns">
+                    <button class="social-btn" onclick="googleSignIn()">
+                        <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                        Continue with Google
+                    </button>
+                    <button class="social-btn" onclick="githubSignIn()">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.924-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
+                        Continue with GitHub
+                    </button>
+                </div>
+                <div class="auth-divider">or sign in with email</div>
+                <input type="email" id="signinEmail" class="auth-input" placeholder="Email address">
+                <input type="password" id="signinPassword" class="auth-input" placeholder="Password">
+                <button class="auth-submit ripple-btn" onclick="emailSignIn()">Sign In</button>
+                <div class="auth-switch">Don't have an account? <a onclick="switchAuthTab('signup')">Create one</a></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ Scripts ═══ -->
+    <script>
+        // Theme Toggle Logic
+        function toggleDarkMode() {
+            const isDark = document.documentElement.classList.toggle('dark-mode');
+            localStorage.setItem('applisync_theme', isDark ? 'dark' : 'light');
+            updateThemeIcon(isDark);
+        }
+
+        function updateThemeIcon(isDark) {
+            const btn = document.querySelector('.theme-toggle');
+            if (btn) {
+                btn.innerHTML = isDark 
+                    ? `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>`
+                    : `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`;
+            }
+        }
+
+        // Initialize Theme Icon
+        window.addEventListener('DOMContentLoaded', () => {
+            const isDark = document.documentElement.classList.contains('dark-mode');
+            updateThemeIcon(isDark);
+            
+            // Intersection Observer for animations
+            const observerOptions = { threshold: 0.1 };
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+        });
+
+        // Auth Modal Logic
+        function openAuth(tab = 'signup') {
+            document.getElementById('authModal').classList.add('active');
+            switchAuthTab(tab);
+        }
+        function closeAuth() {
+            document.getElementById('authModal').classList.remove('active');
+        }
+        function switchAuthTab(tab) {
+            document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+            document.getElementById('tab-' + tab).classList.add('active');
+        }
+
+        // Scroll Animations
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+        // Navbar scroll effect
+        window.addEventListener('scroll', () => {
+            const nav = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                nav.style.borderBottomColor = 'rgba(34, 34, 34, 0.8)';
+            } else {
+                nav.style.borderBottomColor = 'var(--border)';
+            }
+        });
+
+        // ─── Ripple effect on CTA buttons ───
+        document.querySelectorAll('.btn-primary-lg').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                const ripple = document.createElement('span');
+                ripple.className = 'ripple-el';
+                const rect = btn.getBoundingClientRect();
+                ripple.style.left = (e.clientX - rect.left) + 'px';
+                ripple.style.top = (e.clientY - rect.top) + 'px';
+                btn.appendChild(ripple);
+                setTimeout(() => ripple.remove(), 800);
+            });
+        });
+
+        // ─── Animated stat counters ───
+        function animateCounter(el, target, suffix) {
+            const duration = 1800;
+            const start = performance.now();
+            const isDecimal = target % 1 !== 0;
+            function tick(now) {
+                const elapsed = now - start;
+                const progress = Math.min(elapsed / duration, 1);
+                const ease = 1 - Math.pow(1 - progress, 4);
+                const current = isDecimal ? (ease * target).toFixed(1) : Math.round(ease * target);
+                el.textContent = current + suffix;
+                if (progress < 1) requestAnimationFrame(tick);
+            }
+            requestAnimationFrame(tick);
+        }
+
+        const statObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && !entry.target.dataset.counted) {
+                    entry.target.dataset.counted = true;
+                    const h3 = entry.target.querySelector('h3');
+                    if (!h3) return;
+                    const text = h3.textContent.trim();
+                    const match = text.match(/^([\d.]+)(.*)$/);
+                    if (match) {
+                        animateCounter(h3, parseFloat(match[1]), match[2]);
+                    }
+                }
+            });
+        }, { threshold: 0.5 });
+
+        document.querySelectorAll('.stat-item').forEach(el => statObserver.observe(el));
+
+        // ─── Navbar scrolled class ───
+        window.addEventListener('scroll', () => {
+            const nav = document.querySelector('.navbar');
+            if (window.scrollY > 20) {
+                nav.classList.add('scrolled');
+            } else {
+                nav.classList.remove('scrolled');
+            }
+        });
+
+        // ─── Mouse parallax on hero orbs ───
+        const orbs = document.querySelectorAll('.orb, .light-orb-1, .light-orb-2');
+        document.addEventListener('mousemove', (e) => {
+            const cx = window.innerWidth / 2;
+            const cy = window.innerHeight / 2;
+            const dx = (e.clientX - cx) / cx;
+            const dy = (e.clientY - cy) / cy;
+            orbs.forEach((orb, i) => {
+                const factor = (i + 1) * 12;
+                orb.style.transform = `translate(${dx * factor}px, ${dy * factor}px)`;
+            });
+        });
+
+    </script>
+</body>
+</html>

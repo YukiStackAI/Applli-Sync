@@ -1,0 +1,24 @@
+{
+  "manifest_version": 3,
+  "name": "Job Application Tracking Agent",
+  "version": "1.0",
+  "description": "Extracts job data using AI and syncs to Firebase automatically.",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Start Agent"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["extension-config.js", "firebase.js", "content.js"]
+    }
+  ]
+}

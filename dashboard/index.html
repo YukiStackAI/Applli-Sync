@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AppliSync | Intelligence Dashboard</title>
+    <link rel="icon" type="image/png" href="assest/email.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --accent: #f59e0b;
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --text-main: #0f172a;
+            --text-mute: #64748b;
+            --border: rgba(226, 232, 240, 0.8);
+            --glass: rgba(255, 255, 255, 0.7);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 20px;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+        }
+
+        .dark-mode {
+            --bg: #0b0f1a;
+            --surface: #131a2b;
+            --text-main: #f1f5f9;
+            --text-mute: #94a3b8;
+            --border: rgba(255, 255, 255, 0.05);
+            --glass: rgba(19, 26, 43, 0.8);
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text-main);
+            transition: background 0.3s ease, color 0.3s ease;
+            overflow: hidden;
+            display: flex;
+            height: 100vh;
+            margin: 0;
+        }
+
+        /* ═══ Glassmorphism Components ═══ */
+        .glass-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .glass-panel {
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+        }
+
+        /* ═══ Sidebar ═══ */
+        aside {
+            width: 280px;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            z-index: 50;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 16px;
+            margin: 4px 16px;
+            border-radius: var(--radius-sm);
+            color: var(--text-mute);
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .nav-item:hover {
+            background: rgba(99, 102, 241, 0.05);
+            color: var(--primary);
+        }
+
+        .nav-item.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        /* ═══ Main Content ═══ */
+        main {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            scroll-behavior: smooth;
+        }
+
+        .corp-header {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 24px 40px;
+            position: sticky;
+            top: 0;
+            z-index: 40;
+        }
+
+        .header-shimmer {
+            background: linear-gradient(90deg, var(--text-main) 0%, #6366f1 50%, var(--text-main) 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shimmer 4s linear infinite;
+        }
+
+        @keyframes shimmer {
+            to { background-position: 200% center; }
+        }
+
+        /* ═══ Table ═══ */
+        .table-container {
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            border: 1px solid var(--border);
+            background: var(--surface);
+        }
+
+        th {
+            background: rgba(248, 250, 252, 0.5);
+            padding: 14px 20px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-mute);
+            border-bottom: 1px solid var(--border);
+            text-align: left;
+        }
+
+        td {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            font-size: 14px;
+        }
+
+        tr:hover td { background: rgba(99, 102, 241, 0.02); }
+
+        /* ═══ Status Tags ═══ */
+        .status-tag {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .status-applied { background: #e0f2fe; color: #0284c7; }
+        .status-waiting { background: #fef9c3; color: #ca8a04; }
+        .status-ongoing { background: #e0e7ff; color: #4338ca; }
+        .status-accepted { background: #dcfce7; color: #166534; }
+        .status-rejected { background: #fee2e2; color: #b91c1c; }
+
+        /* ═══ Inputs ═══ */
+        .f-input {
+            background: var(--surface);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 10px 14px;
+            font-size: 13px;
+            transition: all 0.2s ease;
+        }
+
+        .f-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+            outline: none;
+        }
+
+        /* Metrics */
+        .metric-card {
+            padding: 24px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            transition: all 0.3s ease;
+        }
+
+        .metric-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+
+        .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; opacity: 0; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Dark Mode engine */
+        #darkToggleBtn svg.sun-icon { display: none; }
+        .dark-mode #darkToggleBtn svg.sun-icon { display: block; }
+        .dark-mode #darkToggleBtn svg.moon-icon { display: none; }
+    </style>
+</head>
+
+<body class="flex h-screen overflow-hidden">
+
+    <!-- ═══ Sidebar ═══ -->
+    <aside class="w-72 flex flex-col pt-8 pb-6 shadow-sm">
+        <div class="px-8 mb-10 flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-200">
+                <img src="assest/work.gif" class="w-6 h-6 object-contain invert brightness-200" alt="AppliSync">
+            </div>
+            <h2 class="text-xl font-bold tracking-tight text-gray-900 dark:text-white">
+                Appli<span class="text-indigo-600">Sync</span>
+            </h2>
+        </div>
+
+        <nav class="flex-1 space-y-2">
+            <div class="px-8 text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mb-4">Core Systems</div>
+            
+            <a href="#" onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-item active">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                Dashboard
+            </a>
+            
+            <a href="#" onclick="switchTab('insights')" id="nav-insights" class="nav-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
+                Intelligence Flow
+            </a>
+
+            <a href="#" onclick="switchTab('settings')" id="nav-settings" class="nav-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                Control Center
+            </a>
+
+            <div class="px-8 pt-8 text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mb-4">External</div>
+            
+            <a href="../job-board.html" class="nav-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                Marketplace
+            </a>
+            
+            <a href="../index.html" class="nav-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                Exit to Portal
+            </a>
+        </nav>
+
+        <div class="px-6 mt-auto border-t border-gray-100 dark:border-gray-800 pt-6">
+            <div class="glass-card p-4 flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600 font-bold text-lg border border-indigo-100">
+                    <span id="userInitial">U</span>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p id="userName" class="text-sm font-bold truncate text-gray-900 dark:text-white">User Name</p>
+                    <p id="userEmail" class="text-[11px] text-gray-500 truncate">user@example.com</p>
+                </div>
+                <button onclick="logoutUser()" class="p-2 text-gray-400 hover:text-red-500 transition-colors" title="Logout">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1-2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ═══ Main Content ═══ -->
+    <main class="flex-1 flex flex-col h-screen overflow-hidden">
+        <!-- Header -->
+        <header class="corp-header flex items-center justify-between px-10">
+            <div class="animate-fade-in">
+                <h1 class="text-3xl font-bold tracking-tight header-shimmer">Intelligence Command</h1>
+                <p class="text-sm text-gray-500 mt-1 font-medium">Monitoring <span id="appCount" class="text-indigo-600 font-bold">0</span> deployment assets</p>
+            </div>
+
+            <div class="flex items-center gap-6 animate-fade-in">
+                <button onclick="openManualModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-indigo-100 transition-all flex items-center gap-2">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    New Entry
+                </button>
+                
+                <div class="h-10 w-[1px] bg-gray-200 dark:bg-gray-800"></div>
+
+                <div class="flex items-center gap-3">
+                    <div class="flex flex-col items-end">
+                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Network Status</span>
+                        <div class="flex items-center gap-1.5">
+                            <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                            <span class="text-[11px] font-bold text-emerald-600 uppercase">Live Sync Active</span>
+                        </div>
+                    </div>
+                    <button id="darkToggleBtn" onclick="toggleDarkMode()" class="w-10 h-10 rounded-xl glass-panel flex items-center justify-center hover:bg-white transition-all shadow-sm">
+                        <svg class="w-5 h-5 text-gray-600 dark:text-amber-400 moon-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                        <svg class="w-5 h-5 text-amber-400 sun-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- View Content Wrapper -->
+        <div class="flex-1 overflow-y-auto px-10 py-8 custom-scrollbar">
+            
+            <!-- ═══ Dashboard View ═══ -->
+            <div id="view-dashboard" class="space-y-8 animate-fade-in">
+                <!-- Filters Bar -->
+                <div class="glass-card p-6 flex flex-wrap gap-4 items-end">
+                    <div class="flex-1 min-w-[200px]">
+                        <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2 px-1">Job Search</label>
+                        <input id="f-role" type="text" placeholder="Search by role or company..." class="f-input w-full">
+                    </div>
+                    <div class="w-48">
+                        <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2 px-1">Platform</label>
+                        <select id="f-platform" class="f-input w-full">
+                            <option value="">All Sources</option>
+                        </select>
+                    </div>
+                    <div class="w-40">
+                        <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2 px-1">Pipeline Status</label>
+                        <select id="f-status" class="f-input w-full">
+                            <option value="">Full Funnel</option>
+                            <option value="Applied">Applied</option>
+                            <option value="Waiting">Waiting</option>
+                            <option value="Ongoing">Ongoing</option>
+                            <option value="Accepted">Accepted</option>
+                            <option value="Rejected">Rejected</option>
+                        </select>
+                    </div>
+                    <button id="resetFilters" class="h-[42px] px-6 text-indigo-600 font-bold text-xs hover:bg-indigo-50 rounded-xl transition-all uppercase tracking-widest">Reset</button>
+                </div>
+
+                <!-- Main Data Grid -->
+                <div class="table-container glass-card">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Source</th>
+                                <th>Timeline</th>
+                                <th>Opportunity</th>
+                                <th>Entity</th>
+                                <th>Point of Contact</th>
+                                <th>Geographic</th>
+                                <th class="text-right">Intelligence Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="jobList">
+                            <!-- JS Injection -->
+                        </tbody>
+                    </table>
+                    
+                    <div id="noData" class="hidden py-32 text-center">
+                        <div class="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <svg class="w-10 h-10 text-gray-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        </div>
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white">No Application Clusters Found</h3>
+                        <p class="text-sm text-gray-500 mt-1">Adjust your parameters or initialize a new capture.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══ Insights View ═══ -->
+            <div id="view-insights" class="hidden space-y-10 animate-fade-in">
+                <!-- Bento Metrics -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="metric-card">
+                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Total Clusters</p>
+                        <h3 id="stat-total" class="text-4xl font-bold tracking-tight">0</h3>
+                        <p class="text-[11px] text-emerald-500 font-bold mt-2">↑ Captured Assets</p>
+                    </div>
+                    <div class="metric-card border-l-4 border-l-indigo-500">
+                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Active Pipeline</p>
+                        <h3 id="stat-active" class="text-4xl font-bold tracking-tight text-indigo-600">0</h3>
+                        <p class="text-[11px] text-gray-400 mt-2">Requires interaction</p>
+                    </div>
+                    <div class="metric-card border-l-4 border-l-emerald-500">
+                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Success Rate</p>
+                        <h3 id="stat-rate" class="text-4xl font-bold tracking-tight text-emerald-600">0%</h3>
+                        <p class="text-[11px] text-gray-400 mt-2">Conversion efficiency</p>
+                    </div>
+                </div>
+
+                <!-- Analytics Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="glass-card p-8">
+                        <h4 class="text-sm font-bold uppercase tracking-widest mb-8 flex items-center gap-3">
+                            <span class="w-1.5 h-6 bg-indigo-600 rounded-full"></span>
+                            Pipeline trajectory
+                        </h4>
+                        <div class="h-[320px]">
+                            <canvas id="pipelineChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="glass-card p-8">
+                        <h4 class="text-sm font-bold uppercase tracking-widest mb-8 flex items-center gap-3">
+                            <span class="w-1.5 h-6 bg-amber-500 rounded-full"></span>
+                            Platform Intelligence
+                        </h4>
+                        <div class="h-[320px]">
+                            <canvas id="platformChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══ Settings View ═══ -->
+            <div id="view-settings" class="hidden max-w-3xl mx-auto space-y-10 animate-fade-in">
+                <div>
+                    <h2 class="text-2xl font-bold tracking-tight">Account Control</h2>
+                    <p class="text-sm text-gray-500 mt-1">Manage security and data retention protocols.</p>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="glass-card p-8 space-y-8">
+                        <div class="grid grid-cols-2 gap-8">
+                            <div>
+                                <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Authenticated ID</label>
+                                <p id="settings-userName" class="text-base font-bold">Loading...</p>
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Secure Channel</label>
+                                <p id="settings-userEmail" class="text-base font-bold">Loading...</p>
+                            </div>
+                        </div>
+                        
+                        <div class="pt-8 border-t border-gray-100 dark:border-gray-800">
+                            <h4 class="text-xs font-bold text-red-500 uppercase tracking-widest mb-4">Critical Operations</h4>
+                            <div class="bg-red-50 dark:bg-red-950/20 rounded-2xl p-6 border border-red-100 dark:border-red-900/30 flex items-center justify-between">
+                                <div class="max-w-md">
+                                    <p class="text-sm font-bold text-red-900 dark:text-red-200">Terminal Deletion</p>
+                                    <p class="text-xs text-red-700 dark:text-red-400 mt-1">Permanently purge all application clusters and identity tokens.</p>
+                                </div>
+                                <button id="purge-button" onclick="deleteAccount()" class="px-6 py-3 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-xl shadow-lg shadow-red-100 transition-all uppercase tracking-widest">Purge Cluster</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ═══ Modals ═══ -->
+    <div id="detailModal" class="modal-overlay hidden fixed inset-0 flex items-center justify-center p-6">
+        <div class="modal-content max-w-5xl w-full max-h-[90vh] flex flex-col">
+            <div class="px-8 py-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                <div class="flex items-center gap-3">
+                    <span class="w-2 h-2 rounded-full bg-indigo-600"></span>
+                    <h3 class="font-bold text-gray-900 text-lg uppercase tracking-tight">Application Dossier</h3>
+                </div>
+                <button onclick="closeModal()" class="w-10 h-10 rounded-full hover:bg-white flex items-center justify-center text-gray-400 transition-all shadow-sm">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div id="modalContent" class="flex-1 overflow-y-auto p-10"></div>
+        </div>
+    </div>
+
+    <!-- Manual Entry Modal -->
+    <div id="manualAddModal" class="modal-overlay hidden fixed inset-0 flex items-center justify-center p-6">
+        <div class="modal-content max-w-2xl w-full flex flex-col">
+            <div class="px-8 py-6 border-b border-gray-100 flex justify-between items-center bg-indigo-50/30">
+                <h3 class="font-bold text-gray-900 text-lg">Initialize Manual Capture</h3>
+                <button onclick="closeManualModal()" class="w-10 h-10 rounded-full hover:bg-white flex items-center justify-center text-gray-400 transition-all shadow-sm">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="p-8">
+                <form id="manualEntryForm" class="space-y-6">
+                    <div class="grid grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-1">Entity Name</label>
+                            <input required type="text" id="m-company" class="f-input w-full" placeholder="Company Name">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-1">Job Specification</label>
+                            <input required type="text" id="m-title" class="f-input w-full" placeholder="Software Engineer">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-1">Capture Source</label>
+                            <input type="text" id="m-platform" class="f-input w-full" placeholder="Direct, LinkedIn, etc.">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-1">Initial Status</label>
+                            <select id="m-status" class="f-input w-full">
+                                <option value="Applied">Applied</option>
+                                <option value="Waiting">Waiting</option>
+                                <option value="Ongoing">Ongoing</option>
+                                <option value="Accepted">Accepted</option>
+                                <option value="Rejected">Rejected</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-6">
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-1">Deployment Date</label>
+                            <input type="date" id="m-date" required class="f-input w-full">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-1">Mode</label>
+                            <select id="m-work-mode" class="f-input w-full">
+                                <option value="Remote">Remote</option>
+                                <option value="Hybrid">Hybrid</option>
+                                <option value="Onsite">Onsite</option>
+                            </select>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-1">Finances</label>
+                            <input type="text" id="m-salary" class="f-input w-full" placeholder="e.g. 150k">
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-1">Dossier Notes</label>
+                        <textarea id="m-notes" rows="4" class="f-input w-full resize-none" placeholder="Primary job description..."></textarea>
+                    </div>
+                    <div class="pt-4">
+                        <button type="submit" id="submitManualBtn" class="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg shadow-indigo-100 transition-all uppercase tracking-widest">
+                            Initialize Capture
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tooltip Simple Helper -->
+    <style>
+        .tool {
+            position: relative;
+        }
+
+        .tool:hover::after {
+            content: attr(data-tip);
+            position: absolute;
+            bottom: 100%;
+            left: 0;
+            padding: 8px 12px;
+            background: #1f2937;
+            color: #fff;
+            font-size: 11px;
+            border-radius: 4px;
+            width: 220px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+        }
+    </style>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+        import { getFirestore, collection, onSnapshot, query, orderBy, where, doc, updateDoc, addDoc, getDocs, deleteDoc, writeBatch } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged, signOut, deleteUser } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
+
+        import firebaseConfig from "../js/firebase-config.js";
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        let currentUser = null;
+        let unsubscribeJobs = null;
+
+        // Auth Gate: redirect to landing if not logged in
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = '../index.html';
+                return;
+            }
+            currentUser = user;
+            // Show user info in sidebar
+            const userNameEl = document.getElementById('userName');
+            const userEmailEl = document.getElementById('userEmail');
+            if (userNameEl) userNameEl.textContent = user.displayName || 'User';
+            if (userEmailEl) userEmailEl.textContent = user.email || '';
+            // Start listening to THIS user's data
+            startJobListener(user.uid);
+
+            // 🌐 SYNC WITH EXTENSION
+            try {
+                const idToken = await user.getIdToken();
+                window.postMessage({
+                    type: 'APPLISYNC_AUTH_SYNC',
+                    uid: user.uid,
+                    token: idToken
+                }, "*");
+            } catch (e) {
+                console.error("Extension sync failed:", e);
+            }
+        });
+
+        const listEl = document.getElementById('jobList');
+        const noData = document.getElementById('noData');
+        const appCount = document.getElementById('appCount');
+
+        // Filter Elements
+        const filterIds = ['f-role', 'f-platform', 'f-status', 'f-location', 'f-date', 'f-salary'];
+        const filterEls = filterIds.map(id => document.getElementById(id));
+        const resetBtn = document.getElementById('resetFilters');
+
+        let allJobs = [];
+
+        function startJobListener(uid) {
+            if (unsubscribeJobs) unsubscribeJobs();
+            unsubscribeJobs = onSnapshot(
+                query(collection(db, "applications"), where("userId", "==", uid), orderBy("date_applied", "desc")),
+                (snapshot) => {
+                    allJobs = [];
+                    snapshot.forEach(d => allJobs.push({ id: d.id, ...d.data() }));
+                    updatePlatformDropdown();
+                    applyFilters();
+                },
+                (error) => {
+                    console.error('Firestore listener error:', error);
+                    // Fallback: try without orderBy if composite index missing
+                    if (unsubscribeJobs) unsubscribeJobs();
+                    unsubscribeJobs = onSnapshot(
+                        query(collection(db, "applications"), where("userId", "==", uid)),
+                        (snapshot) => {
+                            allJobs = [];
+                            snapshot.forEach(d => allJobs.push({ id: d.id, ...d.data() }));
+                            allJobs.sort((a, b) => (b.date_applied || '').localeCompare(a.date_applied || ''));
+                            updatePlatformDropdown();
+                            applyFilters();
+                        }
+                    );
+                }
+            );
+        }
+
+        // Logout
+        window.logoutUser = async () => {
+            await signOut(auth);
+        };
+
+        // Delete Account + All Data
+        window.deleteAccount = async () => {
+            const btn = document.getElementById('purge-button');
+            
+            if (!confirm('Are you sure you want to delete your account? ALL your job data will be permanently erased. This cannot be undone.')) return;
+            if (!confirm('This is your FINAL warning. All data will be deleted forever. Continue?')) return;
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="animate-pulse">PURGING DATA...</span>';
+
+            try {
+                const uid = currentUser.uid;
+                
+                // 1. Delete all user's job documents first
+                try {
+                    const snap = await getDocs(query(collection(db, "applications"), where("userId", "==", uid)));
+                    if (!snap.empty) {
+                        const batch = writeBatch(db);
+                        snap.forEach(d => batch.delete(d.ref));
+                        await batch.commit();
+                    }
+                } catch (dataErr) {
+                    console.error('Data purge failed:', dataErr);
+                    // If rules are wrong, we'll see it here
+                    throw new Error("Could not erase database records. Please ensure your Firestore Security Rules are updated.");
+                }
+
+                btn.innerHTML = '<span class="animate-pulse">ERASING ACCOUNT...</span>';
+
+                // 2. Delete the auth account
+                await deleteUser(currentUser);
+                window.location.href = '../index.html';
+                
+            } catch (err) {
+                console.error('Delete flow failure:', err);
+                btn.disabled = false;
+                btn.innerHTML = 'Purge All Data';
+
+                const errCode = err.code ? `[${err.code}]` : "";
+                
+                if (err.code === 'auth/requires-recent-login') {
+                    alert('Security Check: For your protection, account deletion requires a very recent login. Please sign out (bottom left), sign back in, and try again.');
+                } else {
+                    alert(`System Error ${errCode}: ${err.message}\n\nThis usually means your Firestore Security Rules are still blocking access or the collection name is mismatched. Please verify Step 1 and try again.`);
+                }
+            }
+        };
+
+        // Dark Mode Logic
+        window.toggleDarkMode = () => {
+            const isDark = document.body.classList.toggle('dark-mode');
+            localStorage.setItem('applisync-theme', isDark ? 'dark' : 'light');
+        };
+
+        // Initialize theme
+        if (localStorage.getItem('applisync-theme') === 'dark') {
+            document.body.classList.add('dark-mode');
+        }
+
+        // Tab Switching Logic
+        window.switchTab = (tab) => {
+            const vDash = document.getElementById('view-dashboard');
+            const vIns = document.getElementById('view-insights');
+            const vSet = document.getElementById('view-settings');
+            const nDash = document.getElementById('nav-dashboard');
+            const nIns = document.getElementById('nav-insights');
+            const nSet = document.getElementById('nav-settings');
+            
+            // Reset items
+            [nDash, nIns, nSet].forEach(n => n.classList.remove('active'));
+            [vDash, vIns, vSet].forEach(v => v.classList.add('hidden'));
+
+            if (tab === 'dashboard') {
+                nDash.classList.add('active');
+                vDash.classList.remove('hidden');
+            } else if (tab === 'insights') {
+                nIns.classList.add('active');
+                vIns.classList.remove('hidden');
+                setTimeout(updateInsights, 50);
+            } else if (tab === 'settings') {
+                nSet.classList.add('active');
+                vSet.classList.remove('hidden');
+                if (currentUser) {
+                    document.getElementById('settings-userName').textContent = currentUser.displayName || 'AppliSync Operative';
+                    document.getElementById('settings-userEmail').textContent = currentUser.email || 'No secure channel associated';
+                }
+            }
+        };
+
+        // Analytics Engine
+        let chartPipeline = null;
+        let chartPlatform = null;
+
+        function updateInsights() {
+            if (document.getElementById('view-insights').classList.contains('hidden')) return;
+
+            const total = allJobs.length;
+            let active = 0;
+            let accepted = 0;
+
+            const statusCounts = { 'Applied': 0, 'Waiting': 0, 'Ongoing': 0, 'Accepted': 0, 'Rejected': 0 };
+            const platformCounts = {};
+
+            allJobs.forEach(job => {
+                const safeStatus = job.status ? (job.status.charAt(0).toUpperCase() + job.status.slice(1).toLowerCase()) : 'Applied';
+                const s = (safeStatus === 'On-going' || safeStatus === 'Ongoing') ? 'Ongoing' : safeStatus;
+                
+                if (statusCounts[s] !== undefined) statusCounts[s]++;
+                if (['Waiting', 'Ongoing'].includes(s)) active++;
+                if (s === 'Accepted') accepted++;
+
+                const plat = job.platform && job.platform !== 'NA' ? job.platform : 'Other';
+                platformCounts[plat] = (platformCounts[plat] || 0) + 1;
+            });
+
+            animateValue('stat-total', total);
+            animateValue('stat-active', active);
+            document.getElementById('stat-rate').innerText = total > 0 ? Math.round((accepted / total) * 100) + '%' : '0%';
+
+            // Render Pipeline Chart
+            const ctxPipe = document.getElementById('pipelineChart').getContext('2d');
+            if (chartPipeline) chartPipeline.destroy();
+            chartPipeline = new Chart(ctxPipe, {
+                type: 'bar',
+                data: {
+                    labels: ['Applied', 'Waiting', 'Ongoing', 'Accepted', 'Rejected'],
+                    datasets: [{
+                        label: 'Assets',
+                        data: [statusCounts.Applied, statusCounts.Waiting, statusCounts.Ongoing, statusCounts.Accepted, statusCounts.Rejected],
+                        backgroundColor: [
+                            'rgba(99, 102, 241, 0.1)', // Indigo
+                            'rgba(99, 102, 241, 0.3)', 
+                            'rgba(99, 102, 241, 0.8)', 
+                            'rgba(16, 185, 129, 0.8)', // Emerald
+                            'rgba(239, 68, 68, 0.8)'   // Red
+                        ],
+                        borderColor: ['#6366f1', '#6366f1', '#4f46e5', '#059669', '#dc2626'],
+                        borderWidth: 1.5,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { family: 'DM Sans', weight: '500' } } },
+                        x: { grid: { display: false }, ticks: { font: { family: 'DM Sans', weight: 'bold', size: 10 } } }
+                    }
+                }
+            });
+
+            // Render Platform Chart
+            const ctxPlat = document.getElementById('platformChart').getContext('2d');
+            if (chartPlatform) chartPlatform.destroy();
+            
+            const pLabels = Object.keys(platformCounts);
+            const pData = Object.values(platformCounts);
+
+            chartPlatform = new Chart(ctxPlat, {
+                type: 'doughnut',
+                data: {
+                    labels: pLabels,
+                    datasets: [{
+                        data: pData,
+                        backgroundColor: ['#6366f1', '#f59e0b', '#10b981', '#3b82f6', '#ec4899', '#8b5cf6'],
+                        borderWidth: 4,
+                        borderColor: '#ffffff',
+                        hoverOffset: 12
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false, cutout: '78%',
+                    plugins: {
+                        legend: { position: 'bottom', labels: { usePointStyle: true, padding: 25, font: { size: 10, family: 'DM Sans', weight: 'bold' } } }
+                    }
+                }
+            });
+        }
+
+        // Simple counter animation helper
+        function animateValue(id, end) {
+            const obj = document.getElementById(id);
+            let start = 0;
+            const duration = 1000;
+            if (end === 0) { obj.innerHTML = 0; return; }
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                obj.innerHTML = Math.floor(progress * (end - start) + start);
+                if (progress < 1) window.requestAnimationFrame(step);
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        // Global status updater
+        window.changeStatus = async (id, event) => {
+            event.stopPropagation(); // prevent modal from popping up
+            const newStatus = event.target.value;
+            const selectEl = event.target;
+            selectEl.disabled = true; // prevent multi-click
+            try {
+                await updateDoc(doc(db, "applications", id), { status: newStatus, userId: currentUser ? currentUser.uid : 'anonymous' });
+            } catch (e) {
+                console.error("Firebase update failed", e);
+                alert("Failed to update status. Please check permissions.");
+            } finally {
+                selectEl.disabled = false;
+            }
+        };
+
+        function updatePlatformDropdown() {
+            const platformSelect = document.getElementById('f-platform');
+            const currentValue = platformSelect.value;
+            const uniquePlatforms = [...new Set(allJobs.map(job => job.platform).filter(p => p && p !== 'NA'))];
+
+            platformSelect.innerHTML = '<option value="">All Platforms</option>';
+            uniquePlatforms.sort().forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = p;
+                opt.textContent = p;
+                platformSelect.appendChild(opt);
+            });
+            platformSelect.value = currentValue;
+        }
+
+        function applyFilters() {
+            const filters = {
+                role: document.getElementById('f-role').value.toLowerCase(),
+                platform: document.getElementById('f-platform').value,
+                status: document.getElementById('f-status').value, // Used in filter
+                location: document.getElementById('f-location').value.toLowerCase(),
+                date: document.getElementById('f-date').value,
+                salary: document.getElementById('f-salary').value.toLowerCase()
+            };
+
+            const filtered = allJobs.filter(job => {
+                const matchesRole = !filters.role || (job.job_title + job.company_name).toLowerCase().includes(filters.role);
+                const matchesPlatform = !filters.platform || (job.platform || '').includes(filters.platform);
+                const matchesStatus = !filters.status || job.status === filters.status;
+                const matchesLocation = !filters.location || (job.location || '').toLowerCase().includes(filters.location);
+                const matchesSalary = !filters.salary || (job.salary_range || '').toLowerCase().includes(filters.salary);
+
+                let matchesDate = true;
+                if (filters.date) {
+                    const jobDate = new Date(job.date_applied);
+                    const now = new Date();
+                    if (filters.date === 'today') {
+                        matchesDate = jobDate.toDateString() === now.toDateString();
+                    } else if (filters.date === 'week') {
+                        const sevenDaysAgo = new Date(now.setDate(now.getDate() - 7));
+                        matchesDate = jobDate >= sevenDaysAgo;
+                    } else if (filters.date === 'month') {
+                        matchesDate = jobDate.getMonth() === now.getMonth() && jobDate.getFullYear() === now.getFullYear();
+                    }
+                }
+
+                return matchesRole && matchesPlatform && matchesStatus && matchesLocation && matchesSalary && matchesDate;
+            });
+
+            renderJobs(filtered);
+        }
+
+        filterEls.forEach(el => el.addEventListener('input', applyFilters));
+        filterEls.forEach(el => el.addEventListener('change', applyFilters));
+        resetBtn.onclick = () => {
+            filterEls.forEach(el => el.value = '');
+            applyFilters();
+        };
+
+        function getStatusClass(status) {
+            const s = (status || '').toLowerCase();
+            if (s === 'waiting') return 'status-waiting';
+            if (s === 'ongoing' || s === 'on-going') return 'status-ongoing';
+            if (s === 'accepted') return 'status-accepted';
+            if (s === 'rejected') return 'status-rejected';
+            return 'status-applied'; // default
+        }
+
+        function renderJobs(jobs) {
+            listEl.innerHTML = '';
+            appCount.innerText = jobs.length;
+
+            if (jobs.length === 0) noData.classList.remove('hidden');
+            else {
+                noData.classList.add('hidden');
+                jobs.forEach(job => {
+                    const row = document.createElement('tr');
+                    row.className = "cursor-pointer group";
+                    row.onclick = () => showDetails(job);
+
+                    const safeStatus = job.status ? (job.status.charAt(0).toUpperCase() + job.status.slice(1).toLowerCase()) : 'Applied';
+
+                    row.innerHTML = `
+                        <td>
+                            <span class="px-2.5 py-1 bg-gray-100 dark:bg-gray-800 text-gray-500 text-[10px] font-bold rounded uppercase tracking-wider">${job.platform || 'Direct'}</span>
+                        </td>
+                        <td class="text-[12px] font-medium text-gray-400">${job.date_applied}</td>
+                        <td>
+                            <div class="text-[15px] font-bold text-gray-900 dark:text-white group-hover:text-indigo-600 transition-colors">${job.job_title}</div>
+                            <div class="text-[11px] text-gray-400 mt-0.5 font-medium">${job.salary_range || 'Compensation undisclosed'}</div>
+                        </td>
+                        <td class="text-sm font-bold text-gray-600 dark:text-gray-300">${job.company_name}</td>
+                        <td>
+                            <div class="text-[13px] font-bold text-gray-800 dark:text-gray-200">${job.hr_name || 'Generic HR'}</div>
+                            <div class="text-[10px] text-indigo-500 font-bold uppercase tracking-widest">${job.hr_designation || 'Acquisitions'}</div>
+                        </td>
+                        <td class="text-xs font-bold text-gray-500 uppercase tracking-tighter">${job.location || 'Remote Opt.'}</td>
+                        <td class="text-right" onclick="event.stopPropagation()">
+                            <select class="f-input text-[11px] font-bold py-1.5 px-3 w-[120px] ${getStatusClass(safeStatus)}" onchange="changeStatus('${job.id}', event)">
+                                <option value="Applied" ${safeStatus === 'Applied' ? 'selected' : ''}>Applied</option>
+                                <option value="Waiting" ${safeStatus === 'Waiting' ? 'selected' : ''}>Waiting</option>
+                                <option value="Ongoing" ${safeStatus === 'Ongoing' || safeStatus === 'On-going' ? 'selected' : ''}>Ongoing</option>
+                                <option value="Accepted" ${safeStatus === 'Accepted' ? 'selected' : ''}>Accepted</option>
+                                <option value="Rejected" ${safeStatus === 'Rejected' ? 'selected' : ''}>Rejected</option>
+                            </select>
+                        </td>
+                    `;
+                    listEl.appendChild(row);
+                });
+            }
+        }
+
+        window.showDetails = (job) => {
+            const modal = document.getElementById('detailModal');
+            const content = document.getElementById('modalContent');
+
+            content.innerHTML = `
+                <div class="flex flex-col lg:flex-row gap-12">
+                    <!-- Left Column: Primary Intelligence -->
+                    <div class="flex-1 space-y-10">
+                        <div>
+                             <div class="flex items-center gap-3 mb-4">
+                                <span class="px-3 py-1 bg-indigo-50 text-indigo-600 text-[10px] font-bold rounded-lg uppercase tracking-widest border border-indigo-100">${job.platform || 'Internal'}</span>
+                                <span class="text-gray-400 text-[11px] font-bold uppercase tracking-widest flex items-center gap-2">
+                                    Captured: ${job.date_applied}
+                                </span>
+                            </div>
+                            <h2 class="text-4xl font-bold text-gray-900 dark:text-white leading-tight tracking-tight">${job.job_title}</h2>
+                            <p class="text-xl font-medium text-gray-500 mt-2">${job.company_name}</p>
+                        </div>
+
+                        <div class="bg-gray-50 dark:bg-gray-900/50 rounded-2xl p-8 border border-gray-100 dark:border-gray-800">
+                            <h4 class="text-[10px] font-bold text-indigo-600 uppercase tracking-[0.2em] mb-4">Dossier Analysis</h4>
+                            <p class="text-gray-600 dark:text-gray-400 leading-relaxed text-[15px] whitespace-pre-wrap">${job.job_description || 'No descriptive data captured for this asset.'}</p>
+                        </div>
+
+                        <div>
+                            <h4 class="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mb-4">Target Competencies</h4>
+                            <div class="flex flex-wrap gap-2.5">
+                                ${(job.skills || []).map(s => `<span class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-[12px] text-gray-700 dark:text-gray-300 font-bold shadow-sm">${s}</span>`).join('')}
+                                ${(!job.skills || job.skills.length === 0) ? '<span class="text-sm text-gray-400 italic">No skills identified.</span>' : ''}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Operational Meta -->
+                    <div class="w-full lg:w-[320px] space-y-8">
+                         <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-8 rounded-[24px] shadow-lg relative overflow-hidden">
+                            <div class="absolute top-0 left-0 w-full h-1 bg-indigo-600"></div>
+                            
+                            <div class="text-center mb-8">
+                                <div class="w-16 h-16 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4 font-bold text-2xl">
+                                    ${job.hr_name ? job.hr_name.charAt(0) : 'U'}
+                                </div>
+                                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Human Intelligence</p>
+                                <p class="text-lg font-bold text-gray-900 dark:text-white">${job.hr_name || 'Unidentified'}</p>
+                                <p class="text-[11px] text-indigo-500 font-bold uppercase tracking-wider">${job.hr_designation || 'Agent'}</p>
+                            </div>
+
+                            <div class="space-y-5 pt-6 border-t border-gray-100 dark:border-gray-800">
+                                <div class="flex justify-between items-center"><span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Environment</span><span class="text-[11px] font-bold text-gray-800 dark:text-gray-200">${job.work_mode || 'NA'}</span></div>
+                                <div class="flex justify-between items-center"><span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Classification</span><span class="text-[11px] font-bold text-gray-800 dark:text-gray-200">${job.job_type || 'NA'}</span></div>
+                                <div class="flex justify-between items-center"><span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Finances</span><span class="text-[12px] font-black text-emerald-600">${job.salary_range || 'NA'}</span></div>
+                            </div>
+
+                            <div class="mt-8 py-3 bg-gray-50 dark:bg-gray-800/50 text-gray-400 font-bold text-[10px] rounded-xl border border-gray-100 dark:border-gray-800 text-center uppercase tracking-widest select-none">
+                                Connection Encrypted
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-12 pt-8 border-t border-gray-100 dark:border-gray-800">
+                    <h4 class="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mb-6">Metadata Clusters</h4>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        ${Object.entries(job.user_inputs || {}).map(([k, v]) => `
+                            <div class="bg-white dark:bg-gray-900 p-4 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm">
+                                <p class="text-[9px] text-indigo-500 font-bold uppercase truncate mb-2">${k.replace(/[-_]/g, ' ')}</p>
+                                <p class="text-[12px] font-bold text-gray-800 dark:text-gray-200 line-clamp-2">${v}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            modal.classList.remove('hidden');
+        }
+
+        window.closeModal = () => {
+            document.getElementById('detailModal').classList.add('hidden');
+        }
+
+        // Manual Add Logic
+        window.openManualModal = () => {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('m-date').value = today;
+            document.getElementById('manualAddModal').classList.remove('hidden');
+        }
+
+        window.closeManualModal = () => {
+            document.getElementById('manualAddModal').classList.add('hidden');
+            document.getElementById('manualEntryForm').reset();
+        }
+
+        document.getElementById('manualEntryForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submitManualBtn');
+            btn.innerHTML = 'Saving...';
+            btn.disabled = true;
+
+            const payload = {
+                company_name: document.getElementById('m-company').value,
+                job_title: document.getElementById('m-title').value,
+                platform: document.getElementById('m-platform').value || 'Manual',
+                status: document.getElementById('m-status').value,
+                location: document.getElementById('m-location').value,
+                salary_range: document.getElementById('m-salary').value,
+                date_applied: document.getElementById('m-date').value,
+                hr_name: document.getElementById('m-hr-name').value,
+                work_mode: document.getElementById('m-work-mode').value,
+                job_description: document.getElementById('m-notes').value,
+                timestamp: Date.now(),
+                user_inputs: { Source: 'Manual Database Entry' },
+                userId: currentUser ? currentUser.uid : 'anonymous'
+            };
+
+            // Remove empty keys
+            Object.keys(payload).forEach(key => { if (payload[key] === '') delete payload[key]; });
+
+            try {
+                await addDoc(collection(db, "applications"), payload);
+                window.closeManualModal();
+            } catch (err) {
+                console.error("Error adding entry", err);
+                alert("Failed to add entry. Check console for details.");
+            } finally {
+                btn.innerHTML = 'Save Entry';
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+
+</html>

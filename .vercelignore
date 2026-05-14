@@ -1,0 +1,6 @@
+.vercel
+.git
+.env*.local
+js/firebase-config.js
+extension-config.js
+node_modules

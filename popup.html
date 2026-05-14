@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Job Agent Pro</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      padding: 15px;
+      width: 280px;
+      text-align: center;
+      background: #0f172a;
+      color: #f8fafc;
+      margin: 0;
+    }
+    h3 {
+      margin-top: 5px;
+      margin-bottom: 2px;
+      color: #f8fafc;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+    }
+    .subtitle {
+      font-size: 11px;
+      color: #94a3b8;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    button {
+      padding: 12px 15px;
+      background: #3b82f6;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      width: 100%;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.2s;
+      margin-bottom: 8px;
+      display: flex;
+      items-center: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    button:hover {
+      background: #2563eb;
+      transform: scale(1.02);
+    }
+    button:disabled {
+      background: #1e293b;
+      color: #475569;
+      cursor: not-allowed;
+    }
+    #captureBtn {
+      background: #8b5cf6;
+      display: none;
+    }
+    #saveBtn {
+      background: #10b981;
+      display: none;
+    }
+    #notesArea {
+      width: 100%;
+      box-sizing: border-box;
+      margin-top: 5px;
+      margin-bottom: 10px;
+      padding: 10px;
+      background: #1e293b;
+      border: 1px solid #334155;
+      color: white;
+      border-radius: 8px;
+      font-size: 13px;
+      display: none;
+      resize: vertical;
+      min-height: 60px;
+    }
+    #status {
+      margin-top: 12px;
+      font-size: 12px;
+      color: #94a3b8;
+      padding: 10px;
+      background: #1e293b;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .pulse {
+      width: 8px;
+      height: 8px;
+      background: #10b981;
+      border-radius: 50%;
+      box-shadow: 0 0 8px #10b981;
+      animation: pulse-animation 2s infinite;
+      display: none;
+    }
+    @keyframes pulse-animation {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+      70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+    .badge {
+      background: #334155;
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-size: 10px;
+      font-weight: 800;
+    }
+  </style>
+</head>
+<body>
+  <h3>Tracking Agent</h3>
+  <p class="subtitle">v2.2 Auto-Pilot</p>
+  
+  <button id="startBtn">⚡ Start Tracking</button>
+  <button id="captureBtn">📸 Force Capture <span id="stepCount" class="badge">0</span></button>
+  
+  <textarea id="notesArea" placeholder="Internal notes..."></textarea>
+  
+  <button id="saveBtn">🚀 Finish & Save</button>
+  
+  <div id="status">
+    <div id="pulseIcon" class="pulse"></div>
+    <span id="statusText">Agent Offline</span>
+  </div>
+  
+  <script src="popup.js"></script>
+</body>
+</html>
