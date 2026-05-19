@@ -110,20 +110,21 @@
 
     <style>
         :root {
+            /* Light Theme: White and Orange */
             --bg-primary: #ffffff;
-            --bg-secondary: #f8fafc;
-            --bg-card: rgba(255, 255, 255, 0.7);
-            --bg-card-hover: rgba(255, 255, 255, 0.9);
-            --border: rgba(15, 23, 42, 0.08);
-            --border-light: rgba(15, 23, 42, 0.04);
-            --text-primary: #0f172a;
-            --text-secondary: #475569;
-            --text-muted: #94a3b8;
-            --accent: #6366f1;
-            --accent-light: #818cf8;
-            --accent-dark: #4f46e5;
-            --accent-glow: rgba(99, 102, 241, 0.2);
-            --gradient-accent: linear-gradient(135deg, #6366f1, #4f46e5);
+            --bg-secondary: #fffcf9;
+            --bg-card: rgba(255, 255, 255, 0.8);
+            --bg-card-hover: rgba(255, 255, 255, 0.98);
+            --border: rgba(249, 115, 22, 0.15);
+            --border-light: rgba(249, 115, 22, 0.08);
+            --text-primary: #1a1512;
+            --text-secondary: #5a524c;
+            --text-muted: #9e938a;
+            --accent: #f97316;
+            --accent-light: #fb923c;
+            --accent-dark: #ea580c;
+            --accent-glow: rgba(249, 115, 22, 0.15);
+            --gradient-accent: linear-gradient(135deg, #fb923c, #ea580c);
             --radius-sm: 8px;
             --radius-md: 12px;
             --radius-lg: 24px;
@@ -133,20 +134,21 @@
         }
 
         .dark-mode {
-            --bg-primary: #020617;
-            --bg-secondary: #0f172a;
-            --bg-card: rgba(30, 41, 59, 0.6);
-            --bg-card-hover: rgba(30, 41, 59, 0.8);
-            --border: rgba(255, 255, 255, 0.06);
-            --border-light: rgba(255, 255, 255, 0.03);
-            --text-primary: #f8fafc;
-            --text-secondary: #94a3b8;
-            --text-muted: #475569;
-            --accent: #818cf8;
-            --accent-light: #a5b4fc;
-            --accent-dark: #6366f1;
-            --accent-glow: rgba(129, 140, 248, 0.25);
-            --gradient-accent: linear-gradient(135deg, #818cf8, #6366f1);
+            /* Dark Theme: Obsidian and Amber/Gold */
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #121212;
+            --bg-card: rgba(26, 26, 26, 0.7);
+            --bg-card-hover: rgba(38, 38, 38, 0.85);
+            --border: rgba(251, 191, 36, 0.2);
+            --border-light: rgba(251, 191, 36, 0.1);
+            --text-primary: #fdfdfd;
+            --text-secondary: #a3a3a3;
+            --text-muted: #525252;
+            --accent: #fbbf24;
+            --accent-light: #fde047;
+            --accent-dark: #d97706;
+            --accent-glow: rgba(251, 191, 36, 0.25);
+            --gradient-accent: linear-gradient(135deg, #fde047, #f59e0b);
         }
 
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -357,26 +359,33 @@
 
         .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem; }
         .feature-card {
-            padding: 3rem 2.5rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg);
+            padding: 3rem 2.5rem; background: var(--bg-card); 
+            border: 1px solid var(--border); border-radius: var(--radius-lg);
             transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
             display: flex; flex-direction: column; gap: 1.5rem;
+            position: relative; overflow: hidden;
+        }
+        .feature-card::before {
+            content: ''; position: absolute; inset: 0; background: var(--gradient-accent); opacity: 0; transition: opacity 0.5s; z-index: 0; pointer-events: none;
         }
         .feature-card:hover {
             transform: translateY(-12px); border-color: var(--accent);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.08);
         }
-        .dark-mode .feature-card:hover { box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4); }
+        .dark-mode .feature-card:hover { box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4); }
+        .feature-card:hover::before { opacity: 0.03; }
 
         .feature-icon {
-            width: 56px; height: 56px; border-radius: 16px; background: var(--accent-glow);
+            width: 64px; height: 64px; border-radius: 18px; background: var(--bg-primary);
+            border: 1px solid var(--border); box-shadow: 0 8px 16px rgba(0,0,0,0.04);
             display: flex; align-items: center; justify-content: center; color: var(--accent);
-            transition: transform 0.3s;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); position: relative; z-index: 1;
         }
-        .feature-card:hover .feature-icon { transform: scale(1.1) rotate(5deg); }
+        .feature-card:hover .feature-icon { transform: scale(1.1) rotate(5deg); box-shadow: 0 12px 24px var(--accent-glow); border-color: var(--accent-light); }
 
-        .feature-card h3 { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.5px; }
-        .feature-card p { font-size: 1rem; color: var(--text-secondary); line-height: 1.7; }
+        .feature-card h3 { font-size: 1.4rem; font-weight: 800; letter-spacing: -0.5px; position: relative; z-index: 1; }
+        .feature-card p { font-size: 1.05rem; color: var(--text-secondary); line-height: 1.7; position: relative; z-index: 1; }
 
         /* ─── How It Works ─── */
         .how-it-works { padding: 120px 2rem; background: var(--bg-secondary); }
@@ -394,32 +403,47 @@
         .step-content p { font-size: 1rem; color: var(--text-secondary); line-height: 1.7; }
 
         /* ─── Testimonials ─── */
-        .testimonials { padding: 120px 2rem; max-width: 1280px; margin: 0 auto; }
-        .testimonials-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 2.5rem; margin-top: 5rem; }
-        .testimonial-card {
-            padding: 3.5rem 3rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg);
-            backdrop-filter: blur(10px);
+        .testimonials { padding: 120px 2rem; max-width: 1280px; margin: 0 auto; overflow: hidden; }
+        .testimonials-marquee {
+            display: flex; gap: 2.5rem; width: max-content;
+            animation: scrollMarquee 40s linear infinite;
+            margin-top: 5rem; padding-bottom: 2rem;
         }
-        .testimonial-card p { font-size: 1.15rem; color: var(--text-secondary); line-height: 1.8; margin-bottom: 2.5rem; font-style: italic; }
-        .testimonial-author { display: flex; align-items: center; gap: 16px; }
-        .author-avatar { width: 56px; height: 56px; border-radius: 50%; border: 2px solid var(--accent); }
+        .testimonials-marquee:hover { animation-play-state: paused; }
+        @keyframes scrollMarquee { 0% { transform: translateX(0); } 100% { transform: translateX(calc(-50% - 1.25rem)); } }
+        
+        .testimonial-card {
+            width: 400px; flex-shrink: 0;
+            padding: 3.5rem 3rem; background: var(--bg-card); 
+            border: 1px solid var(--border); border-radius: var(--radius-lg);
+            backdrop-filter: blur(10px);
+            position: relative; box-shadow: var(--shadow-sm);
+        }
+        .testimonial-icon {
+            position: absolute; top: 1.5rem; right: 2rem;
+            color: var(--accent); opacity: 0.3;
+        }
+        .testimonial-card p { font-size: 1.15rem; color: var(--text-secondary); line-height: 1.8; margin-bottom: 2.5rem; font-style: italic; position: relative; z-index: 1; }
+        .testimonial-author { display: flex; align-items: center; gap: 16px; position: relative; z-index: 1; }
+        .author-avatar { width: 56px; height: 56px; border-radius: 50%; border: 2px solid var(--accent); display: flex; align-items: center; justify-content: center; font-weight: bold; color: var(--text-primary); overflow: hidden; background-color: var(--bg-card); }
+        .author-avatar img { width: 100%; height: 100%; object-fit: cover; }
         .author-info h4 { font-size: 1rem; font-weight: 800; color: var(--text-primary); }
         .author-info span { font-size: 0.9rem; color: var(--text-muted); }
 
         /* ─── CTA ─── */
         .cta-section {
             padding: 140px 2rem; text-align: center;
-            background: var(--gradient-accent); color: #fff;
+            background: var(--gradient-accent); color: #1a1a1a;
             position: relative; overflow: hidden;
         }
         .cta-section::before {
             content: ''; position: absolute; inset: 0;
-            background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.1), transparent 70%);
+            background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.2), transparent 70%);
         }
         .cta-section h2 { font-size: clamp(2.5rem, 6vw, 4rem); font-weight: 900; letter-spacing: -3px; margin-bottom: 2rem; position: relative; }
-        .cta-section p { font-size: 1.25rem; opacity: 0.9; margin-bottom: 4rem; max-width: 700px; margin-inline: auto; position: relative; }
-        .cta-section .btn-primary-lg { background: #fff; color: var(--accent-dark); box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
-        .cta-section .btn-primary-lg:hover { background: #f8fafc; }
+        .cta-section p { font-size: 1.25rem; font-weight: 500; opacity: 0.9; margin-bottom: 4rem; max-width: 700px; margin-inline: auto; position: relative; }
+        .cta-section .btn-primary-lg { background: #1a1a1a; color: #fff; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
+        .cta-section .btn-primary-lg:hover { background: #333; }
 
         /* ─── Footer ─── */
         .footer { padding: 100px 2rem 50px; background: var(--bg-secondary); border-top: 1px solid var(--border); }
@@ -454,6 +478,10 @@
 
         .auth-modal h2 { font-size: 2rem; font-weight: 900; letter-spacing: -1px; margin-bottom: 0.75rem; }
         .auth-modal .subtitle { font-size: 1rem; color: var(--text-secondary); margin-bottom: 2.5rem; }
+        
+        .auth-tab { display: none; }
+        .auth-tab.active { display: block; animation: tabFadeIn 0.3s ease; }
+        @keyframes tabFadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         .auth-input {
             width: 100%; padding: 16px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--radius-sm);
@@ -511,10 +539,10 @@
                 Appli<span>Sync</span>
             </a>
             <div class="nav-links">
+                <a href="index.html">Home</a>
                 <a href="#features">Features</a>
                 <a href="#how-it-works">How It Works</a>
                 <a href="#testimonials">Testimonials</a>
-                <a href="careers.html">Careers</a>
                 <a href="job-board.html">Job-Board</a>
             </div>
             <div class="nav-cta">
@@ -649,34 +677,139 @@
         <div class="section-label">What Users Say</div>
         <h2 class="section-title">Loved by Job Seekers<br>Worldwide</h2>
 
-        <div class="testimonials-grid">
-            <div class="testimonial-card fade-up">
+        <div class="testimonials-marquee">
+            <!-- 6 Testimonials -->
+            <div class="testimonial-card">
+                <svg class="testimonial-icon" width="48" height="48" viewBox="0 0 24 24" fill="currentColor"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/></svg>
                 <p>"AppliSync completely changed how I manage my job search. I went from losing track of 50+ applications to having total clarity on every single one."</p>
                 <div class="testimonial-author">
-                    <div class="author-avatar">RK</div>
+                    <div class="author-avatar"><img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Rahul Kumar"></div>
                     <div class="author-info">
                         <h4>Rahul Kumar</h4>
                         <span>Software Engineer at Google</span>
                     </div>
                 </div>
             </div>
-            <div class="testimonial-card fade-up">
+            <div class="testimonial-card">
+                <svg class="testimonial-icon" width="48" height="48" viewBox="0 0 24 24" fill="currentColor"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/></svg>
                 <p>"The real-time analytics showed me which platforms were actually getting me interviews. I stopped wasting time on low-conversion sources."</p>
                 <div class="testimonial-author">
-                    <div class="author-avatar" style="background: var(--accent-light)">PS</div>
+                    <div class="author-avatar"><img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Priya Sharma"></div>
                     <div class="author-info">
                         <h4>Priya Sharma</h4>
                         <span>Product Manager at Microsoft</span>
                     </div>
                 </div>
             </div>
-            <div class="testimonial-card fade-up">
+            <div class="testimonial-card">
+                <svg class="testimonial-icon" width="48" height="48" viewBox="0 0 24 24" fill="currentColor"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/></svg>
                 <p>"From applying to getting an offer — I tracked everything in AppliSync. The pipeline funnel view is genius. Highly recommend for serious job seekers."</p>
                 <div class="testimonial-author">
-                    <div class="author-avatar" style="background: var(--accent-dark)">AJ</div>
+                    <div class="author-avatar"><img src="https://randomuser.me/api/portraits/men/46.jpg" alt="Arjun Joshi"></div>
                     <div class="author-info">
                         <h4>Arjun Joshi</h4>
                         <span>Data Analyst at Amazon</span>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial-card">
+                <svg class="testimonial-icon" width="48" height="48" viewBox="0 0 24 24" fill="currentColor"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/></svg>
+                <p>"The UI is gorgeous and the Chrome extension is a lifesaver. It literally does the boring tracking work for you automatically."</p>
+                <div class="testimonial-author">
+                    <div class="author-avatar"><img src="https://randomuser.me/api/portraits/women/68.jpg" alt="Neha Kapoor"></div>
+                    <div class="author-info">
+                        <h4>Neha Kapoor</h4>
+                        <span>UX Designer at Apple</span>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial-card">
+                <svg class="testimonial-icon" width="48" height="48" viewBox="0 0 24 24" fill="currentColor"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/></svg>
+                <p>"Never thought a job tracking tool could be this sleek. Dark mode looks amazing, and I love seeing my application stages visually mapped out."</p>
+                <div class="testimonial-author">
+                    <div class="author-avatar"><img src="https://randomuser.me/api/portraits/men/62.jpg" alt="Samir Mehta"></div>
+                    <div class="author-info">
+                        <h4>Samir Mehta</h4>
+                        <span>Frontend Dev at Meta</span>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial-card">
+                <svg class="testimonial-icon" width="48" height="48" viewBox="0 0 24 24" fill="currentColor"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/></svg>
+                <p>"Getting hired requires strategy. AppliSync provided the insights I needed to target the right companies and close multiple six-figure offers."</p>
+                <div class="testimonial-author">
+                    <div class="author-avatar"><img src="https://randomuser.me/api/portraits/women/32.jpg" alt="Diya Patel"></div>
+                    <div class="author-info">
+                        <h4>Diya Patel</h4>
+                        <span>Sales Exec at Salesforce</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Duplicated for infinite marquee -->
+            <div class="testimonial-card">
+                <svg class="testimonial-icon" width="48" height="48" viewBox="0 0 24 24" fill="currentColor"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/></svg>
+                <p>"AppliSync completely changed how I manage my job search. I went from losing track of 50+ applications to having total clarity on every single one."</p>
+                <div class="testimonial-author">
+                    <div class="author-avatar"><img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Rahul Kumar"></div>
+                    <div class="author-info">
+                        <h4>Rahul Kumar</h4>
+                        <span>Software Engineer at Google</span>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial-card">
+                <svg class="testimonial-icon" width="48" height="48" viewBox="0 0 24 24" fill="currentColor"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/></svg>
+                <p>"The real-time analytics showed me which platforms were actually getting me interviews. I stopped wasting time on low-conversion sources."</p>
+                <div class="testimonial-author">
+                    <div class="author-avatar"><img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Priya Sharma"></div>
+                    <div class="author-info">
+                        <h4>Priya Sharma</h4>
+                        <span>Product Manager at Microsoft</span>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial-card">
+                <svg class="testimonial-icon" width="48" height="48" viewBox="0 0 24 24" fill="currentColor"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/></svg>
+                <p>"From applying to getting an offer — I tracked everything in AppliSync. The pipeline funnel view is genius. Highly recommend for serious job seekers."</p>
+                <div class="testimonial-author">
+                    <div class="author-avatar"><img src="https://randomuser.me/api/portraits/men/46.jpg" alt="Arjun Joshi"></div>
+                    <div class="author-info">
+                        <h4>Arjun Joshi</h4>
+                        <span>Data Analyst at Amazon</span>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial-card">
+                <svg class="testimonial-icon" width="48" height="48" viewBox="0 0 24 24" fill="currentColor"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/></svg>
+                <p>"The UI is gorgeous and the Chrome extension is a lifesaver. It literally does the boring tracking work for you automatically."</p>
+                <div class="testimonial-author">
+                    <div class="author-avatar"><img src="https://randomuser.me/api/portraits/women/68.jpg" alt="Neha Kapoor"></div>
+                    <div class="author-info">
+                        <h4>Neha Kapoor</h4>
+                        <span>UX Designer at Apple</span>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial-card">
+                <svg class="testimonial-icon" width="48" height="48" viewBox="0 0 24 24" fill="currentColor"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/></svg>
+                <p>"Never thought a job tracking tool could be this sleek. Dark mode looks amazing, and I love seeing my application stages visually mapped out."</p>
+                <div class="testimonial-author">
+                    <div class="author-avatar"><img src="https://randomuser.me/api/portraits/men/62.jpg" alt="Samir Mehta"></div>
+                    <div class="author-info">
+                        <h4>Samir Mehta</h4>
+                        <span>Frontend Dev at Meta</span>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial-card">
+                <svg class="testimonial-icon" width="48" height="48" viewBox="0 0 24 24" fill="currentColor"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/></svg>
+                <p>"Getting hired requires strategy. AppliSync provided the insights I needed to target the right companies and close multiple six-figure offers."</p>
+                <div class="testimonial-author">
+                    <div class="author-avatar"><img src="https://randomuser.me/api/portraits/women/32.jpg" alt="Diya Patel"></div>
+                    <div class="author-info">
+                        <h4>Diya Patel</h4>
+                        <span>Sales Exec at Salesforce</span>
                     </div>
                 </div>
             </div>
@@ -685,7 +818,7 @@
 
     <!-- ═══ CTA ═══ -->
     <section class="cta-section">
-        <h2>Ready to Take Control of Your <span style="color: var(--accent)">Job Search</span>?</h2>
+        <h2>Ready to Take Control of Your <span style="color: #ffffff">Job Search</span>?</h2>
         <p>Join thousands of professionals already using AppliSync to land their dream roles.</p>
         <button class="btn-primary-lg ripple-btn" onclick="openAuth('signup')">Get Started Free →</button>
     </section>
@@ -703,7 +836,6 @@
             <div class="footer-col">
                 <h4>Product</h4>
                 <a href="#features">Features</a>
-                <a href="careers.html">Careers</a>
                 <a href="job-board.html">Job-Board</a>
                 <a href="#how-it-works">How It Works</a>
             </div>
@@ -740,11 +872,11 @@
                 <p class="subtitle">Start tracking your applications in seconds.</p>
                 <div class="social-btns">
                     <button class="social-btn" onclick="googleSignIn()">
-                        <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                        <svg width="24" height="24" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
                         Continue with Google
                     </button>
                     <button class="social-btn" onclick="githubSignIn()">
-                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
                         Continue with GitHub
                     </button>
                 </div>
@@ -762,11 +894,11 @@
                 <p class="subtitle">Sign in to your AppliSync dashboard.</p>
                 <div class="social-btns">
                     <button class="social-btn" onclick="googleSignIn()">
-                        <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                        <svg width="24" height="24" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
                         Continue with Google
                     </button>
                     <button class="social-btn" onclick="githubSignIn()">
-                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.924-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.924-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
                         Continue with GitHub
                     </button>
                 </div>
