@@ -357,7 +357,20 @@
         .section-title { font-size: clamp(2.5rem, 5vw, 3.5rem); font-weight: 900; letter-spacing: -2px; margin-bottom: 1.5rem; color: var(--text-primary); line-height: 1.1; }
         .section-desc { font-size: 1.2rem; color: var(--text-secondary); max-width: 600px; margin-bottom: 5rem; }
 
-        .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem; }
+        .features-grid { 
+            display: grid; 
+            gap: 1.5rem; 
+            grid-template-columns: repeat(1, 1fr);
+        }
+        @media (min-width: 900px) {
+            .features-grid { grid-template-columns: repeat(4, 1fr); grid-auto-rows: minmax(280px, auto); }
+            .feature-card:nth-child(1) { grid-column: span 2; grid-row: span 2; }
+            .feature-card:nth-child(2) { grid-column: span 2; grid-row: span 1; }
+            .feature-card:nth-child(3) { grid-column: span 1; grid-row: span 1; }
+            .feature-card:nth-child(4) { grid-column: span 1; grid-row: span 1; }
+            .feature-card:nth-child(5) { grid-column: span 2; grid-row: span 1; }
+            .feature-card:nth-child(6) { grid-column: span 2; grid-row: span 1; }
+        }
         .feature-card {
             padding: 3rem 2.5rem; background: var(--bg-card); 
             border: 1px solid var(--border); border-radius: var(--radius-lg);
@@ -563,7 +576,7 @@
             <div class="hero-badge">
                 <span class="sparkle">✨</span> Now in Public Beta
             </div>
-            <h1 class="hero-shimmer">Track Every Application.<br>Land Your <span class="accent">Dream Job</span>.</h1>
+            <h1 class="hero-shimmer">Track Every Application<br>Land Your <span class="accent">Dream Job</span></h1>
             <p class="hero-sub">
                 AppliSync captures, organizes, and analyzes your job applications in real-time.
                 AI-powered insights help you optimize your strategy and close offers faster.
