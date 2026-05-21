@@ -117,33 +117,46 @@
     </script>
 
     <style>
-        :root {
-            --bg-primary: #fdfdfd;
-            --bg-secondary: #ffffff;
-            --bg-card: #ffffff;
-            --bg-card-hover: #fffaf7;
-            --border: #f1f5f9;
-            --border-light: #ffedd5;
-            --text-primary: #0f172a;
-            --text-secondary: #64748b;
-            --text-muted: #94a3b8;
+                :root {
+            /* Light Theme: White and Orange */
+            --bg-primary: #ffffff;
+            --bg-secondary: #fffcf9;
+            --bg-card: rgba(255, 255, 255, 0.8);
+            --bg-card-hover: rgba(255, 255, 255, 0.98);
+            --border: rgba(249, 115, 22, 0.15);
+            --border-light: rgba(249, 115, 22, 0.08);
+            --text-primary: #1a1512;
+            --text-secondary: #5a524c;
+            --text-muted: #9e938a;
             --accent: #f97316;
             --accent-light: #fb923c;
             --accent-dark: #ea580c;
-            --accent-glow: rgba(249, 115, 22, 0.1);
-            --gradient-accent: linear-gradient(135deg, #f97316, #ea580c);
+            --accent-glow: rgba(249, 115, 22, 0.15);
+            --gradient-accent: linear-gradient(135deg, #fb923c, #ea580c);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 24px;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
         }
 
         .dark-mode {
-            --bg-primary: #0f172a;
-            --bg-secondary: #1e293b;
-            --bg-card: #1e293b;
-            --bg-card-hover: #334155;
-            --border: #334155;
-            --border-light: #475569;
-            --text-primary: #f8fafc;
-            --text-secondary: #cbd5e1;
-            --text-muted: #94a3b8;
+            /* Dark Theme: Obsidian and Amber/Gold */
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #121212;
+            --bg-card: rgba(26, 26, 26, 0.7);
+            --bg-card-hover: rgba(38, 38, 38, 0.85);
+            --border: rgba(251, 191, 36, 0.2);
+            --border-light: rgba(251, 191, 36, 0.1);
+            --text-primary: #fdfdfd;
+            --text-secondary: #a3a3a3;
+            --text-muted: #525252;
+            --accent: #fbbf24;
+            --accent-light: #fde047;
+            --accent-dark: #d97706;
+            --accent-glow: rgba(251, 191, 36, 0.25);
+            --gradient-accent: linear-gradient(135deg, #fde047, #f59e0b);
         }
 
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -251,7 +264,7 @@
             font-size: 0.8rem; font-weight: 700; color: var(--accent-dark);
             margin-bottom: 2rem;
         }
-        .dark-mode .hero-badge { background: rgba(167, 139, 250, 0.1); border-color: rgba(167, 139, 250, 0.25); color: var(--accent-light); }
+        .dark-mode .hero-badge { background: rgba(251, 191, 36, 0.1); border-color: rgba(251, 191, 36, 0.25); color: var(--accent-light); }
         .hero h1 {
             font-size: clamp(2.5rem, 6vw, 4.5rem);
             font-weight: 900; line-height: 1.05; letter-spacing: -2px;
